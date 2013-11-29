@@ -83,25 +83,60 @@
     // append .bundle to name
     NSString *filename = bundleName;
     if (![filename hasSuffix:@".bundle"]) filename = [NSString stringWithFormat: @"%@.bundle", filename];
-    NSString *bundlePath = [[NSBundle mainBundle] pathForResource:filename ofType:nil];
-    NSAssert(bundlePath != nil, @"Bundle named '%@' not found!", filename);
-    if (!bundlePath) return;
+
+    NSString *bundlePath;
     
-	// create bottom and top images
-    for (NSInteger digit=0; digit<10; digit++)
-    {
-        // create path & image
-        NSString *imageName = [NSString stringWithFormat: @"%ld.png", (long)digit];
-        NSString *bundleImageName = [NSString stringWithFormat: @"%@/%@", filename, imageName];
-        NSString *path = [[NSBundle mainBundle] pathForResource:bundleImageName ofType:nil];
-        UIImage *sourceImage = [[UIImage alloc] initWithContentsOfFile:path];
-        NSAssert(sourceImage != nil, @"Did not find image '%@' in bundle named '%@'", imageName, filename);
+    //need to check if bundle exist before assigning
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *documentsDirectory = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    NSString *dataPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.bundle",bundleName]];
+    if ([fileManager fileExistsAtPath:dataPath]) {
+        bundlePath = dataPath;
         
-        // generate & save images
-        NSArray *images = [self generateImagesFromImage:sourceImage];
-        [topImages addObject:images[0]];
-        [bottomImages addObject:images[1]];
-	}
+        // create bottom and top images
+        for (NSInteger digit=0; digit<10; digit++)
+        {
+            // create path & image
+            NSString *imageName = [NSString stringWithFormat: @"%ld.png", (long)digit];
+            NSString *bundleImageName = [NSString stringWithFormat: @"%@/%@", filename, imageName];
+            //NSString *path = [[NSBundle mainBundle] pathForResource:bundleImageName ofType:nil];
+            NSString *path = [dataPath stringByAppendingString:[NSString stringWithFormat:@"/%@",imageName]];
+            UIImage *sourceImage = [[UIImage alloc] initWithContentsOfFile:path];
+            NSAssert(sourceImage != nil, @"Did not find image '%@' in bundle named '%@'", imageName, filename);
+            
+            // generate & save images
+            NSArray *images = [self generateImagesFromImage:sourceImage];
+            [topImages addObject:images[0]];
+            [bottomImages addObject:images[1]];
+        }
+        
+    }else{
+        //use default bundle
+        bundleName = @"Themes/clocks/4511";
+        filename = bundleName;
+        if (![filename hasSuffix:@".bundle"]) filename = [NSString stringWithFormat: @"%@.bundle", filename];
+        bundlePath = [[NSBundle mainBundle] pathForResource:filename ofType:nil];
+        
+        NSAssert(bundlePath != nil, @"Bundle named '%@' not found!", filename);
+        if (!bundlePath) return;
+        
+        // create bottom and top images
+        for (NSInteger digit=0; digit<10; digit++)
+        {
+            // create path & image
+            NSString *imageName = [NSString stringWithFormat: @"%ld.png", (long)digit];
+            NSString *bundleImageName = [NSString stringWithFormat: @"%@/%@", filename, imageName];
+            NSString *path = [[NSBundle mainBundle] pathForResource:bundleImageName ofType:nil];
+            UIImage *sourceImage = [[UIImage alloc] initWithContentsOfFile:path];
+            NSAssert(sourceImage != nil, @"Did not find image '%@' in bundle named '%@'", imageName, filename);
+            
+            // generate & save images
+            NSArray *images = [self generateImagesFromImage:sourceImage];
+            [topImages addObject:images[0]];
+            [bottomImages addObject:images[1]];
+        }
+    }
+
 	
     // save images
 	self.topImages[bundleName]    = [NSArray arrayWithArray:topImages];
