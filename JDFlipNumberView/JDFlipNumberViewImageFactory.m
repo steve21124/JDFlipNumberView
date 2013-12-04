@@ -192,7 +192,12 @@
         
     }else{
         //use default bundle
-        bundleName = @"Themes/clocks/4511";
+        int randomDigit = (arc4random() % 4) + 1;
+        NSString * randomDigitPath = [NSString stringWithFormat:@"1000%d",randomDigit];
+        
+        //use default bundle
+        bundleName = [NSString stringWithFormat:@"Themes/clocks/%@",randomDigitPath];// @"Themes/clocks/4511";
+        
         filename = bundleName;
         if (![filename hasSuffix:@".bundle"]) filename = [NSString stringWithFormat: @"%@.bundle", filename];
         bundlePath = [[NSBundle mainBundle] pathForResource:filename ofType:nil];
